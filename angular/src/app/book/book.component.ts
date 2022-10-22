@@ -1,22 +1,20 @@
-import { ListService, PagedResultDto } from '@abp/ng.core';
 import { Component, OnInit } from '@angular/core';
-import { BookService, BookDto, bookTypeOptions } from '@proxy/books';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-
-// added this line
+import { ListService, PagedResultDto } from '@abp/ng.core';
+import { Confirmation, ConfirmationService } from '@abp/ng.theme.shared';
+import { BookService, BookDto, bookTypeOptions } from '@proxy/books';
 import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-book',
   templateUrl: './book.component.html',
   styleUrls: ['./book.component.scss'],
-  providers: [
-    ListService,
-    { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }, // add this line
-  ],
+  providers: [ListService, { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }],
 })
 export class BookComponent implements OnInit {
   book = { items: [], totalCount: 0 } as PagedResultDto<BookDto>;
+
+  selectedBook = {} as BookDto;
 
   form: FormGroup;
 
@@ -27,7 +25,8 @@ export class BookComponent implements OnInit {
   constructor(
     public readonly list: ListService,
     private bookService: BookService,
-    private fb: FormBuilder
+    private formBuilder: FormBuilder,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {
@@ -39,16 +38,36 @@ export class BookComponent implements OnInit {
   }
 
   createBook() {
+    this.selectedBook = {} as BookDto;
     this.buildForm();
     this.isModalOpen = true;
   }
 
+  editBook(id: string) {
+    this.bookService.get(id).subscribe(book => {
+      this.selectedBook = book;
+      this.buildForm();
+      this.isModalOpen = true;
+    });
+  }
+
+  deleteBook(id: string) {
+    this.confirmationService.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
+      if (status === Confirmation.Status.confirm) {
+        this.bookService.delete(id).subscribe(() => this.list.get());
+      }
+    });
+  }
+
   buildForm() {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      type: [null, Validators.required],
-      publishDate: [null, Validators.required],
-      price: [null, Validators.required],
+    this.form = this.formBuilder.group({
+      name: [this.selectedBook.name || '', Validators.required],
+      type: [this.selectedBook.type || null, Validators.required],
+      publishDate: [
+        this.selectedBook.publishDate ? new Date(this.selectedBook.publishDate) : null,
+        Validators.required,
+      ],
+      price: [this.selectedBook.price || null, Validators.required],
     });
   }
 
@@ -57,7 +76,11 @@ export class BookComponent implements OnInit {
       return;
     }
 
-    this.bookService.create(this.form.value).subscribe(() => {
+    const request = this.selectedBook.id
+      ? this.bookService.update(this.selectedBook.id, this.form.value)
+      : this.bookService.create(this.form.value);
+
+    request.subscribe(() => {
       this.isModalOpen = false;
       this.form.reset();
       this.list.get();
