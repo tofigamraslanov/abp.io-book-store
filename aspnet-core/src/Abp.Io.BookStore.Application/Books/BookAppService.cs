@@ -14,7 +14,7 @@ public class BookAppService :
         : base(repository)
     {
         GetPolicyName = BookStorePermissions.Books.Default;
-        GetListPolicyName = BookStorePermissions.Books.Default;
+        GetListPolicyName = BookStorePermissions.Books.List;
         CreatePolicyName = BookStorePermissions.Books.Create;
         UpdatePolicyName = BookStorePermissions.Books.Edit;
         DeletePolicyName = BookStorePermissions.Books.Delete;
