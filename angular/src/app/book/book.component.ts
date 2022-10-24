@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ListService, PagedResultDto } from '@abp/ng.core';
-import { Confirmation, ConfirmationService } from '@abp/ng.theme.shared';
-import { BookService, BookDto, bookTypeOptions } from '@proxy/books';
+import { Component, OnInit } from '@angular/core';
+import { BookService, BookDto, bookTypeOptions, AuthorLookupDto } from '@proxy/books';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-book',
@@ -14,9 +16,11 @@ import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap
 export class BookComponent implements OnInit {
   book = { items: [], totalCount: 0 } as PagedResultDto<BookDto>;
 
+  form: FormGroup;
+
   selectedBook = {} as BookDto;
 
-  form: FormGroup;
+  authors$: Observable<AuthorLookupDto[]>;
 
   bookTypes = bookTypeOptions;
 
@@ -25,9 +29,11 @@ export class BookComponent implements OnInit {
   constructor(
     public readonly list: ListService,
     private bookService: BookService,
-    private formBuilder: FormBuilder,
-    private confirmationService: ConfirmationService
-  ) {}
+    private fb: FormBuilder,
+    private confirmation: ConfirmationService
+  ) {
+    this.authors$ = bookService.getAuthorLookup().pipe(map(r => r.items));
+  }
 
   ngOnInit() {
     const bookStreamCreator = query => this.bookService.getList(query);
@@ -52,7 +58,7 @@ export class BookComponent implements OnInit {
   }
 
   deleteBook(id: string) {
-    this.confirmationService.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
+    this.confirmation.warn('::AreYouSureToDelete', 'AbpAccount::AreYouSure').subscribe(status => {
       if (status === Confirmation.Status.confirm) {
         this.bookService.delete(id).subscribe(() => this.list.get());
       }
@@ -60,8 +66,9 @@ export class BookComponent implements OnInit {
   }
 
   buildForm() {
-    this.form = this.formBuilder.group({
-      name: [this.selectedBook.name || '', Validators.required],
+    this.form = this.fb.group({
+      authorId: [this.selectedBook.authorId || null, Validators.required],
+      name: [this.selectedBook.name || null, Validators.required],
       type: [this.selectedBook.type || null, Validators.required],
       publishDate: [
         this.selectedBook.publishDate ? new Date(this.selectedBook.publishDate) : null,
