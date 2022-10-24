@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Abp.Io.BookStore.Localization;
+﻿using Abp.Io.BookStore.Localization;
 using Volo.Abp.Application.Services;
 
 namespace Abp.Io.BookStore;
