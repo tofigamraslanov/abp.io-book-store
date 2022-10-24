@@ -42,6 +42,12 @@
     "Permission:Authors.Edit": "Editing the authors",
     "Permission:Authors.Delete": "Deleting the authors",
 
-    "BookStore:00001": "There is already an author with the same name: {name}"
+    "BookStore:00001": "There is already an author with the same name: {name}",
+
+    "Menu:Authors": "Authors",
+    "Authors": "Authors",
+    "AuthorDeletionConfirmationMessage": "Are you sure to delete the author '{0}'?",
+    "BirthDate": "Birth date",
+    "NewAuthor": "New author"
   }
 }
