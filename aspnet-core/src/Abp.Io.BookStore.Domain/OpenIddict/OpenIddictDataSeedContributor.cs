@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using OpenIddict.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Data;
@@ -25,7 +25,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
     private readonly IAbpApplicationManager _applicationManager;
     private readonly IOpenIddictScopeManager _scopeManager;
     private readonly IPermissionDataSeeder _permissionDataSeeder;
-    private readonly IStringLocalizer<OpenIddictResponse> L;
+    private readonly IStringLocalizer<OpenIddictResponse> _l;
 
     public OpenIddictDataSeedContributor(
         IConfiguration configuration,
@@ -38,7 +38,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         _applicationManager = applicationManager;
         _scopeManager = scopeManager;
         _permissionDataSeeder = permissionDataSeeder;
-        L = l;
+        _l = l;
     }
 
     [UnitOfWork]
@@ -214,12 +214,12 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
     {
         if (!string.IsNullOrEmpty(secret) && string.Equals(type, OpenIddictConstants.ClientTypes.Public, StringComparison.OrdinalIgnoreCase))
         {
-            throw new BusinessException(L["NoClientSecretCanBeSetForPublicApplications"]);
+            throw new BusinessException(_l["NoClientSecretCanBeSetForPublicApplications"]);
         }
 
         if (string.IsNullOrEmpty(secret) && string.Equals(type, OpenIddictConstants.ClientTypes.Confidential, StringComparison.OrdinalIgnoreCase))
         {
-            throw new BusinessException(L["TheClientSecretIsRequiredForConfidentialApplications"]);
+            throw new BusinessException(_l["TheClientSecretIsRequiredForConfidentialApplications"]);
         }
 
         if (!string.IsNullOrEmpty(name) && await _applicationManager.FindByClientIdAsync(name) != null)
@@ -348,7 +348,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 {
                     if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri) || !uri.IsWellFormedOriginalString())
                     {
-                        throw new BusinessException(L["InvalidRedirectUri", redirectUri]);
+                        throw new BusinessException(_l["InvalidRedirectUri", redirectUri]);
                     }
 
                     if (application.RedirectUris.All(x => x != uri))
@@ -364,7 +364,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 {
                     if (!Uri.TryCreate(postLogoutRedirectUri, UriKind.Absolute, out var uri) || !uri.IsWellFormedOriginalString())
                     {
-                        throw new BusinessException(L["InvalidPostLogoutRedirectUri", postLogoutRedirectUri]);
+                        throw new BusinessException(_l["InvalidPostLogoutRedirectUri", postLogoutRedirectUri]);
                     }
 
                     if (application.PostLogoutRedirectUris.All(x => x != uri))

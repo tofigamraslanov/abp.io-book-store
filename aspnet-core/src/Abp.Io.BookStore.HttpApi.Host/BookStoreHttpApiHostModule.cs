@@ -74,7 +74,8 @@ public class BookStoreHttpApiHostModule : AbpModule
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
     {
-        context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults
+            .AuthenticationScheme);
     }
 
     private void ConfigureBundles()
@@ -83,10 +84,7 @@ public class BookStoreHttpApiHostModule : AbpModule
         {
             options.StyleBundles.Configure(
                 LeptonXLiteThemeBundles.Styles.Global,
-                bundle =>
-                {
-                    bundle.AddFiles("/global-styles.css");
-                }
+                bundle => { bundle.AddFiles("/global-styles.css"); }
             );
         });
     }
@@ -141,7 +139,7 @@ public class BookStoreHttpApiHostModule : AbpModule
             configuration["AuthServer:Authority"],
             new Dictionary<string, string>
             {
-                    {"BookStore", "BookStore API"}
+                { "BookStore", "BookStore API" }
             },
             options =>
             {
@@ -183,7 +181,7 @@ public class BookStoreHttpApiHostModule : AbpModule
         context.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(builder =>
-               {
+            {
                 builder
                     .WithOrigins(
                         configuration["App:CorsOrigins"]
