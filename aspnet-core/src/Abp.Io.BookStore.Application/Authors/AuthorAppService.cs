@@ -54,7 +54,7 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     }
 
     [Authorize(BookStorePermissions.Authors.Create)]
-    public async Task<AuthorDto> CreateAsync(CreateAuthorDto input)
+    public async virtual Task<AuthorDto> CreateAsync(CreateAuthorDto input)
     {
         var author = await _authorManager.CreateAsync(
             input.Name,
@@ -68,7 +68,7 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     }
 
     [Authorize(BookStorePermissions.Authors.Edit)]
-    public async Task UpdateAsync(Guid id, UpdateAuthorDto input)
+    public async virtual Task UpdateAsync(Guid id, UpdateAuthorDto input)
     {
         var author = await _authorRepository.GetAsync(id);
 
